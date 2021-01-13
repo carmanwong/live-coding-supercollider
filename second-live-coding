@@ -1,0 +1,32 @@
+s = Server.local;
+s.boot;
+
+
+
+SynthDef.new(\sine, {
+		arg freq=1000, atk=0.2, rel=0.25, amp=0.2, pan=0, out=0;
+		var sig, env;
+		sig = SinOsc.ar(freq);
+		env = EnvGen.kr(Env.new([0,1,0],[atk,rel],[1,-1]), doneAction:2);
+		sig = Pan2.ar(sig, pan, amp);
+		sig = sig*env;
+		Out.ar(out, sig);
+	}).add;
+
+Pdef(
+	\canon_beginning_new,
+	Pbind(
+	\instrument, \sine,
+	\atk, Pwhite(0.1, 1),
+	\rel, Pwhite(0.1, 1),
+	\amp, Pexprand(0.5, 1),
+	\pan, Pwhite(-0.8,0.8),
+	\dur, Pseq([1/4*4], inf),
+	\strech, 16,
+		\midinote, Pseq([72,67,69,64,65,60,65,67,76,74,72,71,69,67,69,71,72,71,69,67,65,64,65,62], inf),
+		);
+).quant_(1);
+
+
+a = Pbindf(Pdef(\canon_beginning_new), \dur, 2).play(quant:1);
+a.stop;
